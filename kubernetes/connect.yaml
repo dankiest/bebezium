@@ -1,0 +1,49 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaConnect
+metadata:
+  name: connect-cluster
+  annotations:
+  # use-connector-resources configures this KafkaConnect
+  # to use KafkaConnector resources to avoid
+  # needing to call the Connect REST API directly
+    strimzi.io/use-connector-resources: "true"
+spec:
+  version: 3.4.0
+  replicas: 1
+  image: nexus3.unifor.br:8080/unifor/debezium-connector:poc-2
+  bootstrapServers: kafka-kafka-brokers:9092
+  # tls:
+  #   trustedCertificates:
+  #     - secretName: kafka-cluster-ca-cert
+  #       certificate: ca.crt
+  config:
+    group.id: 1
+    offset.storage.topic: my-connect-cluster-offsets
+    config.storage.topic: my-connect-cluster-configs
+    status.storage.topic: my-connect-cluster-status
+    key.converter.schemas.enable: true
+    value.converter.schemas.enable: true
+    config.storage.replication.factor: 3
+    offset.storage.replication.factor: 3
+    status.storage.replication.factor: 3
+    config.providers: file
+    config.providers.file.class: org.apache.kafka.common.config.provider.FileConfigProvider
+  externalConfiguration:
+    volumes:
+      - name: connector-config
+        secret:
+          secretName: oracle-credentials
+  # build:
+  #   output:
+  #     type: docker
+  #     image: nexus3.unifor.br:8080/unifor/debezium-connector:poc-3
+  #     pushSecret: regcred
+  #   plugins:
+  #     - name: debezium-oracle-connector
+  #       artifacts:
+  #         - type: zip
+  #           url: https://repo1.maven.org/maven2/io/debezium/debezium-connector-oracle/2.1.2.Final/debezium-connector-oracle-2.1.2.Final-plugin.zip
+      # - name: oraclejdbc
+      #   artifacts:
+      #     - type: jar
+      #       url: https://drive.google.com/uc?id=1s5pi-hhjeqlv9I4mp0O3ej6-mEo9i7qA&export=download

@@ -1,0 +1,37 @@
+kind: KafkaConnect
+apiVersion: kafka.strimzi.io/v1beta2
+metadata:
+  name: cluster-bebeto
+  namespace: bebezium
+  annotations:
+  # use-connector-resources configures this KafkaConnect
+  # to use KafkaConnector resources to avoid
+  # needing to call the Connect REST API directly
+    strimzi.io/use-connector-resources: "true"
+spec:
+  # version: 3.4.0
+  replicas: 1
+  bootstrapServers: 'kafka-kafka-brokers:9092'
+  # image: nexus3.unifor.br:8080/unifor/debezium-connector:poc-3
+  build:
+      output:
+        type: docker
+        image: nexus3.unifor.br:8080/unifor/debezium-connector:poc-3
+        pushSecret: regcred3
+      plugins:
+        - name: debezium-oracle-connector
+          artifacts:
+            - type: zip
+              url: https://repo1.maven.org/maven2/io/debezium/debezium-connector-oracle/2.1.2.Final/debezium-connector-oracle-2.1.2.Final-plugin.zip
+        - name: oraclejdbc
+          artifacts:
+            - type: jar
+              url: https://talend-update.talend.com/nexus/content/repositories/libraries/com/oracle/ojdbc/ojdbc8/19.3.0.0/ojdbc8-19.3.0.0.jar
+  config:
+    group.id: cluster-bebeto
+    offset.storage.topic: cluster-bebeto-offsets
+    config.storage.topic: cluster-bebeto-configs
+    status.storage.topic: cluster-bebeto-status
+    config.storage.replication.factor: -1
+    offset.storage.replication.factor: -1
+    status.storage.replication.factor: -1

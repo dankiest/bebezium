@@ -1,0 +1,68 @@
+subir banco oracle 19c
+criar tabelas
+criar api para mudar tabelas
+subir kafka
+connectar debezium
+conectar debezium com tabelas
+criar consumer para receber mudanças nas tabelas
+
+
+https://github.com/oracle/docker-images/blob/main/OracleDatabase/SingleInstance/README.md
+
+docker run --name oracle -p 1521:1521 -p 5500:5500 -p 2484:2484 -e ORACLE_SID=BDB -e ORACLE_PWD=12345678 oracle19c
+
+alter session set "_ORACLE_SCRIPT"=true;
+
+create user DEBEZIUM identified by asd123;
+
+GRANT dba TO debezium;
+
+system
+12345678
+
+debezium
+asd123
+
+
+
+https://debezium.io/blog/2022/09/30/debezium-oracle-series-part-1/
+https://debezium.io/blog/2022/10/06/debezium-oracle-series-part-2/
+
+
+
+
+
+SELECT GROUP#, BYTES/1024/1024 SIZE_MB, STATUS FROM V$LOG ORDER BY 1;
+
+ALTER DATABASE CLEAR LOGFILE GROUP 3;
+ALTER DATABASE DROP LOGFILE GROUP 3;
+ALTER DATABASE ADD LOGFILE GROUP 3 ('/opt/oracle/oradata/ORCLCDB/redo03.log') size 400M REUSE;
+
+
+
+
+
+
+
+
+
+docker run -it --rm --name connect -p 8083:8083 \
+  -e GROUP_ID=1 \
+  -e CONFIG_STORAGE_TOPIC=my_connect_configs \
+  -e OFFSET_STORAGE_TOPIC=my_connect_offsets \
+  -e STATUS_STORAGE_TOPIC=my_connect_statuses \
+  --link kafka:kafka \
+  --link dbz_oracle21:dbz_oracle21 \
+  -v /home/daniel/projects/bebezium/volumes/jdbc/ojdbc8.jar:/kafka/libs/ojdbc8.jar \
+  quay.io/debezium/connect:1.9
+
+
+
+
+
+
+
+
+
+
+

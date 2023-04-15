@@ -1,0 +1,23 @@
+apiVersion: "kafka.strimzi.io/v1beta2"
+kind: "KafkaConnector"
+metadata:
+  name: "users-connector"
+  namespace: bebezium
+  labels:
+    strimzi.io/cluster: cluster-bebeto
+spec:
+  class: io.debezium.connector.oracle.OracleConnector
+  tasksMax: 1
+  config:
+    database.hostname: ecc1-scan1.br1.ocm.s7356456.oraclecloudatcustomer.com
+    database.port: "1521"
+    database.user: "kafka"
+    database.password: "kafka"
+    database.dbname: "EXAMAT"
+    database.server.name: "EXAMAT"
+    table.include.list: "CA.USUARIO"
+    database.history.kafka.bootstrap.servers: "kafka-kafka-bootstrap.bebezium.svc.cluster.local:9092"
+    database.history.kafka.topic: "schema-changes"
+    database.history.store.only.captured.tables.ddl: "true"
+    include.schema.changes: "true" 
+    topic.prefix: "cluster-bebeto"
